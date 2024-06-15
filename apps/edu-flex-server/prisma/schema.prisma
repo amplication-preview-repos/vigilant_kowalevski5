@@ -1,0 +1,101 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Course {
+  attendances Attendance[]
+  createdAt   DateTime     @default(now())
+  description String?
+  grades      Grade[]
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  schedules   Schedule[]
+  school      School?      @relation(fields: [schoolId], references: [id])
+  schoolId    String?      @db.ObjectId
+  teacherId   String?
+  updatedAt   DateTime     @updatedAt
+}
+
+model School {
+  courses   Course[]
+  createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String?
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+model Message {
+  content     String?
+  createdAt   DateTime  @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  recipientId String?
+  senderId    String?
+  timestamp   DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+model Attendance {
+  course    Course?               @relation(fields: [courseId], references: [id])
+  courseId  String?               @db.ObjectId
+  createdAt DateTime              @default(now())
+  date      DateTime?
+  id        String                @id @default(auto()) @map("_id") @db.ObjectId
+  status    EnumAttendanceStatus?
+  studentId String?
+  updatedAt DateTime              @updatedAt
+}
+
+model Schedule {
+  course    Course?   @relation(fields: [courseId], references: [id])
+  courseId  String?   @db.ObjectId
+  createdAt DateTime  @default(now())
+  date      DateTime?
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  teacherId String?
+  time      DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+model Grade {
+  course    Course?             @relation(fields: [courseId], references: [id])
+  courseId  String?             @db.ObjectId
+  createdAt DateTime            @default(now())
+  id        String              @id @default(auto()) @map("_id") @db.ObjectId
+  score     Float?
+  studentId String?
+  typeField EnumGradeTypeField?
+  updatedAt DateTime            @updatedAt
+}
+
+model User {
+  createdAt DateTime      @default(now())
+  email     String?       @unique
+  firstName String?
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  password  String
+  role      EnumUserRole?
+  roles     Json
+  school    School?       @relation(fields: [schoolId], references: [id])
+  schoolId  String?       @db.ObjectId
+  updatedAt DateTime      @updatedAt
+  username  String        @unique
+}
+
+enum EnumAttendanceStatus {
+  Option1
+}
+
+enum EnumGradeTypeField {
+  Option1
+}
+
+enum EnumUserRole {
+  Option1
+}
